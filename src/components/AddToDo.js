@@ -14,13 +14,12 @@ const getLocalTodoLists = () => {
 
 const AddToDo = () => {
   const [todos, setTodos] = useState(getLocalTodoLists());
-
   const [inputData, setInputData] = useState({});
 
   const handleChange = (e) => {
     console.log(inputData);
     const name = e.target.name;
-    const value = e.target.value;
+    let value = e.target.value;
     let payload = {
       ...inputData,
       [name]: value,
@@ -40,7 +39,10 @@ const AddToDo = () => {
       },
     ];
     setTodos(payload);
-    setInputData("");
+    setInputData({
+      header: "",
+      body: "",
+    });
   };
 
   const handleDelete = (id) => {
@@ -89,12 +91,20 @@ const AddToDo = () => {
                   {todo.header}
                   <span className="fw-normal">{todo.body}</span>
                 </span>
-                <button
-                  className="border-0"
-                  onClick={() => handleDelete(todo.id)}
-                >
-                  <i className="fa-solid fa-trash"></i>
-                </button>
+                <div>
+                  <button
+                    className="border-0 bg-transparent"
+                    onClick={() => handleDelete(todo.id)}
+                  >
+                    <i className="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    className="border-0 bg-transparent"
+                    onClick={() => handleDelete(todo.id)}
+                  >
+                    <i className="fa-solid fa-trash"></i>
+                  </button>
+                </div>
               </li>
             );
           })}
