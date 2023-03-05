@@ -14,10 +14,11 @@ const getLocalTodoLists = () => {
 
 const AddToDo = () => {
   const [todos, setTodos] = useState(getLocalTodoLists());
-  const [inputData, setInputData] = useState({});
+  const [inputData, setInputData] = useState({ header: "", body: "" });
+  const [toggleBtn, setToggleBtn] = useState(false);
+  const [isEditItem, setIsEditItem] = useState(null);
 
   const handleChange = (e) => {
-    console.log(inputData);
     const name = e.target.name;
     let value = e.target.value;
     let payload = {
@@ -29,16 +30,34 @@ const AddToDo = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(todos);
-    let payload = [
-      ...todos,
-      {
-        id: uuid(),
-        header: inputData.header,
-        body: inputData.body,
-      },
-    ];
-    setTodos(payload);
+    if (!inputData) {
+      alert("Enter the todo");
+    } else if (inputData && toggleBtn) {
+      console.log("hello");
+      setTodos(
+        todos.map((todo) => {
+          if (todo.id === isEditItem) {
+            return { ...todo, header: inputData.header, body: inputData.body };
+          }
+          return todo;
+        })
+      );
+      setToggleBtn(false);
+      setInputData({ header: "", body: "" });
+      setIsEditItem(null);
+    } else {
+      console.log("fff");
+      let payload = [
+        ...todos,
+        {
+          id: uuid(),
+          header: inputData.header,
+          body: inputData.body,
+        },
+      ];
+      setTodos(payload);
+    }
+
     setInputData({
       header: "",
       body: "",
@@ -54,8 +73,16 @@ const AddToDo = () => {
     localStorage.setItem("lists", JSON.stringify(todos));
   }, [todos]);
 
+  const handleEdit = (id) => {
+    setToggleBtn(true);
+    const newEditTodo = todos.find((todo) => todo.id === id);
+    console.log(newEditTodo);
+    console.log(newEditTodo.header);
+    setInputData({ header: newEditTodo.header, body: newEditTodo.body });
+    setIsEditItem(id);
+  };
   return (
-    <div>
+    <div className="d-flex flex-column">
       <form className="m-4 align-items-center d-flex" onSubmit={handleSubmit}>
         <input
           required
@@ -75,9 +102,15 @@ const AddToDo = () => {
           className="me-3"
           onChange={handleChange}
         />
-        <button className="btn btn-primary" type="submit">
-          AddToDo
-        </button>
+        {toggleBtn ? (
+          <button className="btn btn-secondary" type="submit">
+            EditToDo
+          </button>
+        ) : (
+          <button className="btn btn-primary" type="submit">
+            AddToDo
+          </button>
+        )}
       </form>
       <div className="todolist w-75">
         <ul className="list-group">
@@ -94,7 +127,7 @@ const AddToDo = () => {
                 <div>
                   <button
                     className="border-0 bg-transparent"
-                    onClick={() => handleDelete(todo.id)}
+                    onClick={() => handleEdit(todo.id)}
                   >
                     <i className="fa-solid fa-pen-to-square"></i>
                   </button>
